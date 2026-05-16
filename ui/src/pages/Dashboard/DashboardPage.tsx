@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Activity, Server, Shield, Zap, Play, Square } from 'lucide-react'
+import { Activity, Server, Shield, Zap, Play, Square, ExternalLink } from 'lucide-react'
 import { api, type LabStatus, type ResultsResponse } from '../../api/client'
 import { StatCard } from '../../components/StatCard'
 
@@ -72,6 +72,15 @@ export function DashboardPage() {
         <button className="ctrl-btn down-btn" onClick={() => void labDown()} disabled={labBusy}>
           <Square size={13} /> Stop Lab
         </button>
+        <a
+          className="ctrl-btn"
+          href="https://localhost:5601"
+          target="_blank"
+          rel="noreferrer"
+          title="Wazuh dashboard (admin / admin)"
+        >
+          <ExternalLink size={13} /> Wazuh Dashboard
+        </a>
       </div>
 
       <div className="section-header">

@@ -1,0 +1,34 @@
+name: network_scan
+description: >
+  Safe simulation of network-wide host and service discovery.
+  Runs nmap against the gloamfire-attack-net subnet (172.30.0.0/24) to discover
+  all victim containers and their open ports. Identifies system users via who/w/last.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - discovery
+  - network
+
+mitre:
+  - T1046
+  - T1018
+  - T1033
+
+steps:
+  - id: scan_subnet
+    attack: network_scan
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects network scan DNS beacon (T1046)"
+    required: true
+  - source: wazuh
+    rule_id: "100017"
+    description: "Wazuh detects network discovery activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: network_scan_cleanup
+    target: gloamfire-ubuntu

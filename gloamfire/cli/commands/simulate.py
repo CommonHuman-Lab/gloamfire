@@ -323,6 +323,36 @@ def _sim_lateral_move(
     _invoke_run("lateral_move", dry_run)
 
 
+@app.command(name="network-scan")
+def _sim_network_scan(dry_run: bool = typer.Option(False, "--dry-run", "-n")) -> None:
+    """Shorthand: simulate network-scan scenario."""
+    _invoke_run("network_scan", dry_run)
+
+
+@app.command(name="python-exec")
+def _sim_python_exec(dry_run: bool = typer.Option(False, "--dry-run", "-n")) -> None:
+    """Shorthand: simulate python-exec scenario."""
+    _invoke_run("python_exec", dry_run)
+
+
+@app.command(name="c2-icmp")
+def _sim_c2_icmp(dry_run: bool = typer.Option(False, "--dry-run", "-n")) -> None:
+    """Shorthand: simulate c2-icmp scenario."""
+    _invoke_run("c2_icmp", dry_run)
+
+
+@app.command(name="service-persistence")
+def _sim_service_persistence(dry_run: bool = typer.Option(False, "--dry-run", "-n")) -> None:
+    """Shorthand: simulate service-persistence scenario."""
+    _invoke_run("service_persistence", dry_run)
+
+
+@app.command(name="env-hijack")
+def _sim_env_hijack(dry_run: bool = typer.Option(False, "--dry-run", "-n")) -> None:
+    """Shorthand: simulate env-hijack scenario."""
+    _invoke_run("env_hijack", dry_run)
+
+
 _ALL_SCENARIOS = [
     "suspicious_curl",
     "reverse_shell",
@@ -339,6 +369,11 @@ _ALL_SCENARIOS = [
     "account_backdoor",
     "defense_evasion",
     "lateral_move",
+    "network_scan",
+    "python_exec",
+    "c2_icmp",
+    "service_persistence",
+    "env_hijack",
 ]
 
 

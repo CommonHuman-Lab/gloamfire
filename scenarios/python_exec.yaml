@@ -1,0 +1,35 @@
+name: python_exec
+description: >
+  Safe simulation of Python-based payload execution.
+  Base64-encodes a harmless Python payload, stages it to disk, then decodes
+  and executes it at runtime — the classic decode-and-run staging pattern.
+  No destructive payload; all output written to stdout only.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - execution
+  - obfuscation
+
+mitre:
+  - T1059.006
+  - T1140
+  - T1027.002
+
+steps:
+  - id: python_staged_exec
+    attack: python_exec
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects Python exec DNS beacon (T1059.006)"
+    required: true
+  - source: wazuh
+    rule_id: "100018"
+    description: "Wazuh detects Python script execution"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: python_exec_cleanup
+    target: gloamfire-ubuntu

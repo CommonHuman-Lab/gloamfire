@@ -123,6 +123,46 @@
     <group>gloamfire,defense_evasion,</group>
   </rule>
 
+  <rule id="100017" level="10">
+    <if_sid>100001</if_sid>
+    <match>network_scan</match>
+    <description>Gloamfire: Network and host discovery scan detected (T1046, T1018, T1033)</description>
+    <mitre><id>T1046</id><id>T1018</id><id>T1033</id></mitre>
+    <group>gloamfire,discovery,</group>
+  </rule>
+
+  <rule id="100018" level="11">
+    <if_sid>100001</if_sid>
+    <match>python_exec</match>
+    <description>Gloamfire: Python-based payload execution with base64 decode-and-run (T1059.006, T1140)</description>
+    <mitre><id>T1059.006</id><id>T1140</id><id>T1027.002</id></mitre>
+    <group>gloamfire,execution,</group>
+  </rule>
+
+  <rule id="100019" level="11">
+    <if_sid>100001</if_sid>
+    <match>c2_icmp</match>
+    <description>Gloamfire: ICMP covert C2 channel with data-encoded ping traffic (T1095, T1132)</description>
+    <mitre><id>T1095</id><id>T1132</id></mitre>
+    <group>gloamfire,command_and_control,</group>
+  </rule>
+
+  <rule id="100020" level="12">
+    <if_sid>100001</if_sid>
+    <match>service_persistence</match>
+    <description>Gloamfire: Systemd service persistence unit file written (T1543.002)</description>
+    <mitre><id>T1543</id><id>T1543.002</id></mitre>
+    <group>gloamfire,persistence,</group>
+  </rule>
+
+  <rule id="100021" level="12">
+    <if_sid>100001</if_sid>
+    <match>env_hijack</match>
+    <description>Gloamfire: LD_PRELOAD execution flow hijacking detected (T1574.006)</description>
+    <mitre><id>T1574</id><id>T1574.006</id></mitre>
+    <group>gloamfire,defense_evasion,privilege_escalation,</group>
+  </rule>
+
   <rule id="100016" level="13">
     <if_sid>100001</if_sid>
     <match>lateral_move</match>

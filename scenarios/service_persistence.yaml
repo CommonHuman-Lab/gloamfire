@@ -1,0 +1,34 @@
+name: service_persistence
+description: >
+  Safe simulation of systemd service persistence.
+  Writes a realistic-looking fake .service unit file to /tmp (not to
+  /etc/systemd/system) so it cannot actually be enabled or started.
+  Demonstrates the exact file content an attacker would deploy.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - persistence
+  - systemd
+
+mitre:
+  - T1543
+  - T1543.002
+
+steps:
+  - id: write_service_unit
+    attack: service_persistence
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects service persistence DNS beacon (T1543)"
+    required: true
+  - source: wazuh
+    rule_id: "100020"
+    description: "Wazuh detects systemd service persistence activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: service_persistence_cleanup
+    target: gloamfire-ubuntu

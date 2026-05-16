@@ -52,3 +52,8 @@ def load_builtin_attacks() -> None:
     import gloamfire.attacks.account_backdoor  # noqa: F401
     import gloamfire.attacks.defense_evasion  # noqa: F401
     import gloamfire.attacks.lateral_move  # noqa: F401
+    import gloamfire.attacks.network_scan  # noqa: F401
+    import gloamfire.attacks.python_exec  # noqa: F401
+    import gloamfire.attacks.c2_icmp  # noqa: F401
+    import gloamfire.attacks.service_persistence  # noqa: F401
+    import gloamfire.attacks.env_hijack  # noqa: F401

@@ -1,0 +1,35 @@
+name: env_hijack
+description: >
+  Safe simulation of LD_PRELOAD execution flow hijacking.
+  Compiles a minimal shared library in /tmp that intercepts getuid(),
+  then injects it via LD_PRELOAD. Also demonstrates PATH hijacking by
+  prepending /tmp to PATH with a fake 'ls' binary. All artefacts in /tmp.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - privilege-escalation
+  - defense-evasion
+  - hijack
+
+mitre:
+  - T1574
+  - T1574.006
+
+steps:
+  - id: ld_preload_inject
+    attack: env_hijack
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects env hijack DNS beacon (T1574)"
+    required: true
+  - source: wazuh
+    rule_id: "100021"
+    description: "Wazuh detects execution flow hijacking activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: env_hijack_cleanup
+    target: gloamfire-ubuntu

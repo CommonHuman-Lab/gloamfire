@@ -69,6 +69,24 @@ _TECHNIQUE_DB: dict[str, dict[str, str]] = {
     "T1021": {"name": "Remote Services", "tactic": "Lateral Movement"},
     "T1021.004": {"name": "Remote Services: SSH", "tactic": "Lateral Movement"},
     "T1570": {"name": "Lateral Tool Transfer", "tactic": "Lateral Movement"},
+    # Discovery (TA0007) additions
+    "T1046": {"name": "Network Service Discovery", "tactic": "Discovery"},
+    "T1018": {"name": "Remote System Discovery", "tactic": "Discovery"},
+    "T1033": {"name": "System Owner/User Discovery", "tactic": "Discovery"},
+    # Execution (TA0002) additions
+    "T1059.006": {"name": "Command and Scripting Interpreter: Python", "tactic": "Execution"},
+    "T1140": {"name": "Deobfuscate/Decode Files or Information", "tactic": "Defense Evasion"},
+    "T1027.002": {"name": "Obfuscated Files or Information: Software Packing", "tactic": "Defense Evasion"},
+    # C2 (TA0011) additions
+    "T1095": {"name": "Non-Application Layer Protocol", "tactic": "Command and Control"},
+    "T1132": {"name": "Data Encoding", "tactic": "Command and Control"},
+    "T1132.001": {"name": "Data Encoding: Standard Encoding", "tactic": "Command and Control"},
+    # Persistence (TA0003) additions
+    "T1543": {"name": "Create or Modify System Process", "tactic": "Persistence"},
+    "T1543.002": {"name": "Create or Modify System Process: Systemd Service", "tactic": "Persistence"},
+    # Privilege Escalation / Defense Evasion additions
+    "T1574": {"name": "Hijack Execution Flow", "tactic": "Defense Evasion"},
+    "T1574.006": {"name": "Hijack Execution Flow: LD_PRELOAD", "tactic": "Defense Evasion"},
 }
 
 

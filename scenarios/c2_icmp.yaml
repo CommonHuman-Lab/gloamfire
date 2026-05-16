@@ -1,0 +1,35 @@
+name: c2_icmp
+description: >
+  Safe simulation of ICMP-based covert C2 channel.
+  Sends a sequence of ping packets to a non-routable address (192.0.2.99)
+  with varying sizes to encode data — a classic T1095 evasion technique.
+  Requires NET_RAW capability (already present on gloamfire-ubuntu).
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - command-and-control
+  - evasion
+
+mitre:
+  - T1095
+  - T1132
+  - T1132.001
+
+steps:
+  - id: icmp_beacon
+    attack: c2_icmp
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects ICMP C2 beacon activity (T1095)"
+    required: true
+  - source: wazuh
+    rule_id: "100019"
+    description: "Wazuh detects ICMP C2 simulation"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: c2_icmp_cleanup
+    target: gloamfire-ubuntu
