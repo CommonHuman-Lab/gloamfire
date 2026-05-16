@@ -70,6 +70,40 @@ gloamfire simulate suspicious-dns
 
 Each prints a result table showing `[PASS]` or `[FAIL]` for every detection backend. `simulate all` adds a combined summary at the end.
 
+### Run a scenario chain
+
+```bash
+gloamfire simulate chain kill-chain
+```
+
+Runs an ordered sequence of scenarios defined in a YAML file. The built-in `kill_chain` covers all six simulations in a realistic attack sequence. Write your own:
+
+```yaml
+# scenarios/chains/my_chain.yaml
+name: my_chain
+description: Custom attack sequence
+on_fail: stop   # stop | continue (default: continue)
+scenarios:
+  - suspicious_curl
+  - reverse_shell
+  - fake_ransomware
+```
+
+Then run it:
+
+```bash
+gloamfire simulate chain my_chain
+gloamfire simulate chain ./scenarios/chains/my_chain.yaml --export ./output
+```
+
+### Export an ATT&CK Navigator heatmap
+
+```bash
+gloamfire export navigator
+```
+
+Reads accumulated telemetry from `gloamfire_telemetry.jsonl` and writes `navigator_layer.json`. Upload it at [https://mitre-attack.github.io/attack-navigator/](https://mitre-attack.github.io/attack-navigator/) → Open Existing Layer → Upload from local.
+
 ### Tear down
 
 ```bash
@@ -80,16 +114,19 @@ gloamfire down
 
 ## Available Scenarios
 
-| Name | MITRE Techniques | Detection trigger |
-| ---- | ---------------- | ----------------- |
-| `suspicious_curl` | T1105 | GPL ATTACK_RESPONSE (testmynids.org HTTP) |
-| `reverse_shell` | T1059.004, T1071.001 | Outbound TCP SYN to port 4444 |
-| `fake_ransomware` | T1486 | C2 beacon HTTP after mass file rename |
-| `encoded_command` | T1027, T1059.004 | C2 beacon HTTP after base64 exec |
-| `persistence` | T1053.005 | C2 beacon HTTP after cron install |
-| `suspicious_dns` | T1071.004, T1568.002 | DGA-style DNS queries |
+| Name | Severity | MITRE Techniques | Detection trigger |
+| ---- | -------- | ---------------- | ----------------- |
+| `suspicious_curl` | High | T1105 | GPL ATTACK_RESPONSE (testmynids.org HTTP) |
+| `reverse_shell` | High | T1059.004, T1071.001 | Outbound TCP SYN to port 4444 |
+| `fake_ransomware` | High | T1486 | C2 beacon HTTP after mass file rename |
+| `encoded_command` | High | T1027, T1059.004 | C2 beacon HTTP after base64 exec |
+| `persistence` | High | T1053.005 | C2 beacon HTTP after cron install |
+| `suspicious_dns` | High | T1071.004, T1568.002 | DGA-style DNS queries |
+| `credential_dump` | **Critical** | T1003, T1552.001 | /etc/shadow access + exfil DNS beacon |
+| `log_tampering` | **Critical** | T1070, T1070.002 | Log clear DNS beacon + C2 HTTP |
+| `privilege_escalation` | **Critical** | T1548, T1548.001 | SUID enum + privesc DNS beacon |
 
-All six pass both **Wazuh** (custom rules 100002–100007) and **Suricata** (ET Open + custom rules 9000001–9000012) out of the box.
+All nine pass both **Wazuh** (custom rules 100002–100010, levels 10–15) and **Suricata** (ET Open + custom rules 9000001–9000022) out of the box.
 
 ---
 
@@ -224,8 +261,6 @@ mypy gloamfire/
 ## Roadmap
 
 - [ ] Sigma rule validation backend
-- [ ] MITRE ATT&CK Navigator heatmap export
-- [ ] Attack chaining (multi-scenario sequences)
 - [ ] Windows AD victim container
 - [ ] PCAP capture from simulations
 - [ ] Web UI for scenario management

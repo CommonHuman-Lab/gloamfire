@@ -53,6 +53,50 @@ class ResultExporter:
         unique_ids = list(dict.fromkeys(all_ids))
         return format_mitre_table(unique_ids)
 
+    def to_navigator_layer(self) -> dict[str, Any]:
+        """Return an ATT&CK Navigator layer dict for simulation result."""
+        from gloamfire.telemetry.mitre import lookup
+
+        all_ids: list[str] = []
+        for event in self._r.events:
+            all_ids.extend(event.mitre)
+        unique_ids = list(dict.fromkeys(all_ids))
+
+        techniques = []
+        for tid in unique_ids:
+            info = lookup(tid)
+            techniques.append({
+                "techniqueID": info.technique_id,
+                "tactic": info.tactic.lower().replace(" ", "-"),
+                "score": 1,
+                "color": "#e86c26",
+                "comment": info.technique_name,
+                "enabled": True,
+                "metadata": [],
+            })
+
+        return {
+            "name": f"Gloamfire — {self._r.scenario}",
+            "versions": {"attack": "14", "navigator": "4.9", "layer": "4.5"},
+            "domain": "enterprise-attack",
+            "description": f"Techniques observed during Gloamfire simulation: {self._r.scenario}",
+            "filters": {"platforms": ["Linux", "Windows", "macOS"]},
+            "sorting": 0,
+            "layout": {"layout": "side", "aggregateFunction": "max", "showID": True, "showName": True},
+            "hideDisabled": False,
+            "techniques": techniques,
+            "gradient": {
+                "colors": ["#ffffff", "#e86c26"],
+                "minValue": 0,
+                "maxValue": 1,
+            },
+            "legendItems": [{"label": "Observed in simulation", "color": "#e86c26"}],
+            "metadata": [],
+            "links": [],
+            "showTacticRowBackground": True,
+            "tacticRowBackground": "#1a1a2e",
+        }
+
     def to_summary(self) -> dict[str, Any]:
         """Return a compact result summary for display."""
         return {

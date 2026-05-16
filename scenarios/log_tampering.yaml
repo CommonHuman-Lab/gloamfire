@@ -1,0 +1,34 @@
+name: log_tampering
+description: >
+  Safe simulation of log file tampering and audit trail destruction.
+  Creates a fake auth log in /tmp, then truncates it to simulate an attacker
+  covering their tracks. Does not touch real system log files.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - defense-evasion
+  - impact
+
+mitre:
+  - T1070
+  - T1070.002
+
+steps:
+  - id: log_tampering_attempt
+    attack: log_tampering
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects log clear DNS beacon (T1070.002)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100009"
+    description: "Wazuh CRITICAL: Log file tampering / audit trail destruction (T1070.002)"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: log_tampering_cleanup
+    target: gloamfire-ubuntu

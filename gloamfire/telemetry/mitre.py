@@ -23,6 +23,12 @@ _TECHNIQUE_DB: dict[str, dict[str, str]] = {
     "T1190": {"name": "Exploit Public-Facing Application", "tactic": "Initial Access"},
     "T1110": {"name": "Brute Force", "tactic": "Credential Access"},
     "T1003": {"name": "OS Credential Dumping", "tactic": "Credential Access"},
+    "T1552": {"name": "Unsecured Credentials", "tactic": "Credential Access"},
+    "T1552.001": {"name": "Credentials In Files", "tactic": "Credential Access"},
+    "T1070": {"name": "Indicator Removal", "tactic": "Defense Evasion"},
+    "T1070.002": {"name": "Clear Linux or Mac System Logs", "tactic": "Defense Evasion"},
+    "T1548": {"name": "Abuse Elevation Control Mechanism", "tactic": "Privilege Escalation"},
+    "T1548.001": {"name": "Setuid and Setgid", "tactic": "Privilege Escalation"},
 }
 
 

@@ -1,0 +1,34 @@
+name: privilege_escalation
+description: >
+  Safe simulation of privilege escalation reconnaissance.
+  Enumerates SUID/SGID binaries, probes sudo permissions, and checks for
+  writable PATH directories. No actual privilege escalation is performed.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - privilege-escalation
+  - discovery
+
+mitre:
+  - T1548
+  - T1548.001
+
+steps:
+  - id: privesc_attempt
+    attack: privilege_escalation
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects privilege escalation DNS beacon (T1548.001)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100010"
+    description: "Wazuh CRITICAL: Privilege escalation attempt detected (T1548)"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: privilege_escalation_cleanup
+    target: gloamfire-ubuntu

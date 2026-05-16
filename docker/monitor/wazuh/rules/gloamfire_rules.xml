@@ -59,4 +59,28 @@
     <group>gloamfire,dns,</group>
   </rule>
 
+  <rule id="100008" level="15">
+    <if_sid>100001</if_sid>
+    <match>credential_dump</match>
+    <description>Gloamfire: OS credential dumping detected — /etc/shadow access (T1003) - CRITICAL</description>
+    <mitre><id>T1003</id><id>T1552.001</id></mitre>
+    <group>gloamfire,credential_dumping,</group>
+  </rule>
+
+  <rule id="100009" level="15">
+    <if_sid>100001</if_sid>
+    <match>log_tampering</match>
+    <description>Gloamfire: Log file tampering / audit trail destruction (T1070.002) - CRITICAL</description>
+    <mitre><id>T1070</id><id>T1070.002</id></mitre>
+    <group>gloamfire,log_tampering,</group>
+  </rule>
+
+  <rule id="100010" level="15">
+    <if_sid>100001</if_sid>
+    <match>privilege_escalation</match>
+    <description>Gloamfire: Privilege escalation attempt — SUID enumeration and sudo probe (T1548) - CRITICAL</description>
+    <mitre><id>T1548</id><id>T1548.001</id></mitre>
+    <group>gloamfire,privilege_escalation,</group>
+  </rule>
+
 </group>

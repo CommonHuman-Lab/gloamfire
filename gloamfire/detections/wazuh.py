@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from gloamfire.core.models import ExecutionEvent
+from gloamfire.core.models import DetectionExpectation, DetectionResult, ExecutionEvent
 from gloamfire.detections.base import BaseDetectionCollector
 
 log = logging.getLogger(__name__)
@@ -47,17 +47,55 @@ class WazuhCollector(BaseDetectionCollector):
     ) -> list[dict[str, Any]]:
         if not self.is_available():
             return []
-
         deadline = time.monotonic() + window_s
         since_ts = since_event.timestamp
-
         while time.monotonic() < deadline:
             alerts = self._read_alerts_since(since_ts)
             if alerts:
                 return alerts
             time.sleep(self._poll_interval)
-
         return []
+
+    def evaluate(
+        self,
+        expectation: DetectionExpectation,
+        events: list[ExecutionEvent],
+        window_s: int = 30,
+    ) -> DetectionResult:
+
+        if not self.is_available():
+            return DetectionResult(
+                expectation=expectation,
+                status="skip",
+                detail="wazuh backend not available",
+            )
+        if not events:
+            return DetectionResult(
+                expectation=expectation,
+                status="skip",
+                detail="No execution events to correlate against",
+            )
+
+        since_ts = events[0].timestamp
+        deadline = time.monotonic() + window_s
+
+        while time.monotonic() < deadline:
+            alerts = self._read_alerts_since(since_ts)
+            matched = self._match(expectation, alerts)
+            if matched:
+                return DetectionResult(
+                    expectation=expectation,
+                    status="pass",
+                    detail=f"Matched alert in {self.source}",
+                    raw_alert=matched,
+                )
+            time.sleep(self._poll_interval)
+
+        return DetectionResult(
+            expectation=expectation,
+            status="fail",
+            detail=f"No matching alert found in {self.source} within {window_s}s window",
+        )
 
     def _read_alerts_since(self, since: datetime) -> list[dict[str, Any]]:
         alerts: list[dict[str, Any]] = []

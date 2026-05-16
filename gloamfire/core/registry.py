@@ -43,3 +43,6 @@ def load_builtin_attacks() -> None:
     import gloamfire.attacks.persistence  # noqa: F401
     import gloamfire.attacks.reverse_shell  # noqa: F401
     import gloamfire.attacks.shell_exec  # noqa: F401
+    import gloamfire.attacks.credential_dump  # noqa: F401
+    import gloamfire.attacks.log_tampering  # noqa: F401
+    import gloamfire.attacks.privilege_escalation  # noqa: F401

@@ -33,6 +33,15 @@ class MitreMapping(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class Chain(BaseModel):
+    """An ordered sequence of scenarios that execute as a unit."""
+
+    name: str
+    description: str = ""
+    on_fail: Literal["stop", "continue"] = "continue"
+    scenarios: list[str]
+
+
 class ScenarioStep(BaseModel):
     """A single executable step within a scenario."""
 
