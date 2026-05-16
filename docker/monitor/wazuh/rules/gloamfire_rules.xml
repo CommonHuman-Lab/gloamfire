@@ -1,0 +1,62 @@
+<!-- Gloamfire — custom Wazuh detection rules
+     Rule IDs 100001–100099 reserved for Gloamfire.
+     These fire on syslog entries written to /var/log/gloamfire/attacks.log
+     by the Python attack engine and forwarded by gloamfire-wazuh-agent. -->
+<group name="gloamfire,attack_simulation,">
+
+  <!-- Parent rule: any Gloamfire attack event -->
+  <rule id="100001" level="8">
+    <program_name>Gloamfire</program_name>
+    <description>Gloamfire: attack simulation event observed</description>
+    <group>gloamfire,</group>
+  </rule>
+
+  <rule id="100002" level="12">
+    <if_sid>100001</if_sid>
+    <match>curl_wget</match>
+    <description>Gloamfire: Suspicious remote file download via curl/wget (T1105)</description>
+    <mitre><id>T1105</id></mitre>
+    <group>gloamfire,ingress_tool_transfer,</group>
+  </rule>
+
+  <rule id="100003" level="14">
+    <if_sid>100001</if_sid>
+    <match>reverse_shell</match>
+    <description>Gloamfire: Reverse shell attempt detected (T1059.004)</description>
+    <mitre><id>T1059.004</id></mitre>
+    <group>gloamfire,reverse_shell,</group>
+  </rule>
+
+  <rule id="100004" level="14">
+    <if_sid>100001</if_sid>
+    <match>fake_ransomware</match>
+    <description>Gloamfire: Mass file modification / ransomware activity (T1486)</description>
+    <mitre><id>T1486</id></mitre>
+    <group>gloamfire,ransomware,</group>
+  </rule>
+
+  <rule id="100005" level="12">
+    <if_sid>100001</if_sid>
+    <match>encoded_command</match>
+    <description>Gloamfire: Encoded/obfuscated command execution (T1027)</description>
+    <mitre><id>T1027</id></mitre>
+    <group>gloamfire,obfuscation,</group>
+  </rule>
+
+  <rule id="100006" level="12">
+    <if_sid>100001</if_sid>
+    <match>persistence</match>
+    <description>Gloamfire: Cron-based persistence mechanism installed (T1053.005)</description>
+    <mitre><id>T1053.005</id></mitre>
+    <group>gloamfire,persistence,</group>
+  </rule>
+
+  <rule id="100007" level="10">
+    <if_sid>100001</if_sid>
+    <match>dns_suspicious</match>
+    <description>Gloamfire: Suspicious DNS / DGA beacon activity (T1071.004)</description>
+    <mitre><id>T1071.004</id></mitre>
+    <group>gloamfire,dns,</group>
+  </rule>
+
+</group>

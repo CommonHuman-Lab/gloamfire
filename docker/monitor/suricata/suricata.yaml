@@ -1,0 +1,120 @@
+# Suricata configuration for Gloamfire monitor stack
+# Tuned for lab use — aggressive rule sets, EVE JSON output, low noise.
+
+%YAML 1.1
+---
+
+vars:
+  address-groups:
+    HOME_NET: "[172.30.0.0/24]"   # gloamfire-attack-net subnet
+    EXTERNAL_NET: "!$HOME_NET"
+    HTTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    AIM_SERVERS: "$EXTERNAL_NET"
+    DC_SERVERS: "$HOME_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "any"
+    MODBUS_CLIENT: "any"
+    MODBUS_SERVER: "$HOME_NET"
+    ENIP_CLIENT: "any"
+    ENIP_SERVER: "$HOME_NET"
+  port-groups:
+    HTTP_PORTS: "8080,80,443,18080"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: 22
+    DNP3_PORTS: 20000
+    MODBUS_PORTS: 502
+
+default-log-dir: /var/log/suricata/
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes
+            payload-printable: yes
+            packet: yes
+            metadata: yes
+        - http:
+            extended: yes
+        - dns:
+            query: yes
+            answer: yes
+        - tls:
+            extended: yes
+        - files:
+            force-magic: yes
+        - flow
+        - netflow
+
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+
+unix-command:
+  enabled: yes
+  filename: /var/run/suricata/suricata-command.socket
+
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: yes
+
+af-packet:
+  - interface: default
+    cluster-id: 42
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+    ring-size: 200000
+    block-size: 65536
+
+# Suricata-Update managed rules
+# Run: docker exec gloamfire-suricata suricata-update
+default-rule-path: /var/lib/suricata/rules
+rule-files:
+  - suricata.rules                                # ET Open rules (suricata-update)
+  - /etc/suricata/rules/gloamfire-lab.rules       # Gloamfire custom rules
+
+threading:
+  set-cpu-affinity: no
+  detect-thread-ratio: 1.0
+
+app-layer:
+  protocols:
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: 443
+    http:
+      enabled: yes
+    ftp:
+      enabled: yes
+    smtp:
+      enabled: yes
+    dns:
+      tcp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+    dnp3:
+      enabled: yes
+      detection-ports:
+        dp: 20000
+    modbus:
+      enabled: yes
+      detection-ports:
+        dp: 502

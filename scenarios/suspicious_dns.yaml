@@ -1,0 +1,37 @@
+name: suspicious_dns
+description: >
+  Simulate suspicious DNS activity: high-entropy DGA-style subdomain lookups
+  combined with lookups to known IDS test domains. Generates realistic DNS
+  telemetry visible to Suricata ET rules.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - command-and-control
+  - dns
+  - dga
+
+mitre:
+  - T1071.004
+  - T1568.002
+
+steps:
+  - id: dga_lookups
+    attack: dns_suspicious
+    target: gloamfire-ubuntu
+    params:
+      resolver: "8.8.8.8"
+      domains:
+        - "testmynids.org"
+        - "a1b2c3d4e5f6.evil-c2-sim.example.com"
+        - "xk9mzp2qrvn8.dga-beacon-sim.example.com"
+        - "beacon.gloamfire-dns-sim.invalid"
+
+expect:
+  - source: suricata
+    description: "Suricata custom rule fires on DGA domain query (T1568.002)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100007"
+    description: "Wazuh detects suspicious DNS/DGA beacon activity (T1071.004)"
+    required: true

@@ -1,0 +1,33 @@
+name: persistence
+description: >
+  Simulate cron-based persistence: installs a scheduled task entry that would
+  beacon to an attacker, then immediately removes it. Safe — no real persistence
+  survives after the simulation step completes.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - persistence
+  - cron
+  - scheduled-task
+
+mitre:
+  - T1053.005
+
+steps:
+  - id: install_cron_persistence
+    attack: persistence
+    target: gloamfire-ubuntu
+    params:
+      cron_file: /etc/cron.d/gloamfire_sim_persistence
+      backdoor_path: /tmp/gloamfire_backdoor.sh
+      cron_user: root
+
+expect:
+  - source: suricata
+    description: "Suricata detects C2 beacon HTTP alert after persistence install"
+    required: true
+
+  - source: wazuh
+    rule_id: "100006"
+    description: "Wazuh detects cron-based persistence installation (T1053.005)"
+    required: true

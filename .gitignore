@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing & coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Type checker cache
+.mypy_cache/
+.ruff_cache/
+
+# Gloamfire runtime artefacts
+gloamfire_telemetry.jsonl
+*.events.jsonl
+*.timeline.json
+*.mitre.json
+*.summary.json
+output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+*.log
+*.deb
+docker/monitor/logs/
+docker/monitor/.env
+docker/monitor/suricata/rules/gloamfire-lab.rules

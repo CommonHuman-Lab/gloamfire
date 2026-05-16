@@ -1,0 +1,40 @@
+name: fake_ransomware
+description: >
+  Simulate ransomware file-rename activity.
+  Creates dummy documents in /tmp, renames them with an encrypted extension,
+  drops a ransom note, then cleans up. No real encryption or destruction occurs.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - impact
+  - ransomware
+  - file-system
+
+mitre:
+  - T1486
+
+steps:
+  - id: mass_rename
+    attack: fake_ransomware
+    target: gloamfire-ubuntu
+    params:
+      sim_dir: /tmp/gloamfire_ransomware_sim
+      file_count: 20
+      extension: ".gloamfire_enc"
+
+expect:
+  - source: suricata
+    description: "Suricata detects C2 beacon HTTP alert after file operations"
+    required: true
+
+  - source: wazuh
+    rule_id: "100004"
+    description: "Wazuh detects ransomware file activity (T1486)"
+    required: true
+
+cleanup:
+  - id: remove_sim_files
+    attack: fake_ransomware_cleanup
+    target: gloamfire-ubuntu
+    params:
+      sim_dir: /tmp/gloamfire_ransomware_sim

@@ -1,0 +1,34 @@
+name: reverse_shell
+description: >
+  Safe simulation of a reverse shell attempt.
+  Uses a non-routable RFC 5737 test address so no real connection is possible.
+  Generates process/network telemetry matching known IDS signatures.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - lateral-movement
+  - execution
+  - network
+
+mitre:
+  - T1059.004
+  - T1071.001
+
+steps:
+  - id: reverse_shell_attempt
+    attack: reverse_shell
+    target: gloamfire-ubuntu
+    params:
+      lhost: "192.0.2.1"   # RFC 5737 TEST-NET-1 — not routable
+      lport: 4444
+      timeout: 3
+
+expect:
+  - source: suricata
+    description: "Suricata detects outbound TCP SYN to port 4444 (T1059.004)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100003"
+    description: "Wazuh detects reverse shell attempt (T1059.004)"
+    required: true

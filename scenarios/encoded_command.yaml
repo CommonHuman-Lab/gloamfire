@@ -1,0 +1,32 @@
+name: encoded_command
+description: >
+  Simulate base64-obfuscated command execution (Linux equivalent of PowerShell -EncodedCommand).
+  The base64 payload decodes to a harmless echo — the encoding pattern is what
+  IDS/EDR signatures key on.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - defense-evasion
+  - obfuscation
+  - execution
+
+mitre:
+  - T1027
+  - T1059.004
+
+steps:
+  - id: execute_encoded
+    attack: encoded_command
+    target: gloamfire-ubuntu
+    params:
+      payload: 'echo "[Gloamfire] Encoded command simulation — $(hostname) $(date)"'
+
+expect:
+  - source: suricata
+    description: "Suricata detects C2 beacon HTTP alert after encoded execution"
+    required: true
+
+  - source: wazuh
+    rule_id: "100005"
+    description: "Wazuh detects encoded/obfuscated command execution (T1027)"
+    required: true

@@ -1,0 +1,45 @@
+name: suspicious_curl
+description: Simulate suspicious remote script download via curl (T1105 Ingress Tool Transfer)
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - network
+  - download
+  - command-and-control
+
+mitre:
+  - T1105
+
+steps:
+  - id: download_payload
+    attack: curl_wget
+    target: gloamfire-ubuntu
+    params:
+      url: "http://testmynids.org/uid/index.html"
+      method: curl
+      output: /tmp/gloamfire_sim_payload
+
+  - id: download_wget
+    attack: curl_wget
+    target: gloamfire-ubuntu
+    params:
+      url: "http://testmynids.org/uid/index.html"
+      method: wget
+      output: /tmp/gloamfire_sim_payload_wget
+
+expect:
+  - source: suricata
+    description: "Suricata generates outbound HTTP alert (GPL ATTACK_RESPONSE)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100002"
+    description: "Wazuh detects suspicious curl/wget activity (T1105)"
+    required: true
+
+cleanup:
+  - id: remove_downloads
+    attack: shell_exec
+    target: gloamfire-ubuntu
+    params:
+      cmd: "rm -f /tmp/gloamfire_sim_payload /tmp/gloamfire_sim_payload_wget"

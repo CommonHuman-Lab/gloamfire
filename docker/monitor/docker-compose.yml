@@ -1,0 +1,142 @@
+# Gloamfire Monitor Stack
+# Wazuh SIEM + Suricata IDS + Gloamfire Wazuh agent for detection validation.
+#
+# Architecture:
+#   - Wazuh 4.8 single-node (manager + indexer + dashboard)
+#   - gloamfire-wazuh-agent reads the Python engine's attack log and forwards
+#     events to the manager — no need for agents on victim containers.
+#   - Suricata monitors the Docker bridge carrying attack-net traffic.
+#   - Bind mounts expose alerts.json and eve.json so the Python collector
+#     can read them directly without any API calls.
+#
+# Minimum host resources: 4 GB RAM, 4 CPU cores
+
+services:
+  wazuh.manager:
+    image: wazuh/wazuh-manager:4.8.2
+    hostname: wazuh.manager
+    container_name: wazuh.manager
+    ports:
+      - "1514:1514/tcp"
+      - "1515:1515"
+      - "55000:55000"
+    environment:
+      - INDEXER_URL=https://demo.indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=admin
+      - FILEBEAT_SSL_VERIFICATION_MODE=none
+      - WAZUH_API_PASSWORD=SecretPassword
+    volumes:
+      - wazuh_api_configuration:/var/ossec/api/configuration
+      # wazuh_etc must be fresh (empty) on first use so Wazuh's init can copy
+      # the default config from data_tmp.  labs.py runs `down -v` before `up`.
+      - wazuh_etc:/var/ossec/etc
+      # Bind-mount the whole log tree so Python collectors can read alerts.json
+      # without API calls. labs.py pre-creates the required subdirectories with
+      # open permissions before compose up, bypassing the Wazuh volume-init race.
+      - ./logs/wazuh:/var/ossec/logs
+      - wazuh_queue:/var/ossec/queue
+      # Override ossec.conf via the /wazuh-config-mount mechanism — runs after
+      # mount_permanent_data so the default etc/ is already populated first.
+      - ./wazuh/ossec.conf:/wazuh-config-mount/etc/ossec.conf:ro
+      # ar.conf is created at runtime by wazuh-remoted; seed an empty file so
+      # wazuh-analysisd doesn't abort before remoted has a chance to start.
+      - ./wazuh/shared/ar.conf:/var/ossec/etc/shared/ar.conf
+      # Gloamfire custom detection rules — loaded from the rules/ dir automatically.
+      - ./wazuh/rules/gloamfire_rules.xml:/var/ossec/etc/rules/gloamfire_rules.xml
+    networks:
+      - wazuh-internal
+    restart: unless-stopped
+
+  wazuh.indexer:
+    image: wazuh/wazuh-indexer:4.8.2
+    hostname: wazuh.indexer
+    container_name: wazuh.indexer
+    environment:
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - wazuh_indexer_data:/var/lib/wazuh-indexer
+      - ./wazuh-indexer/opensearch.yml:/usr/share/wazuh-indexer/opensearch.yml:ro
+    ports:
+      - "9200:9200"
+    networks:
+      wazuh-internal:
+        aliases:
+          - demo.indexer
+    restart: unless-stopped
+
+  wazuh.dashboard:
+    image: wazuh/wazuh-dashboard:4.8.2
+    hostname: wazuh.dashboard
+    container_name: wazuh.dashboard
+    ports:
+      - "5601:5601"
+    environment:
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=admin
+      - WAZUH_API_URL=https://wazuh.manager
+      - API_USERNAME=wazuh-wui
+      - API_PASSWORD=wazuh-wui
+    depends_on:
+      - wazuh.indexer
+      - wazuh.manager
+    networks:
+      - wazuh-internal
+    restart: unless-stopped
+
+  # Lightweight agent container that reads the Gloamfire Python engine's attack
+  # event log and forwards entries to the Wazuh manager.  No agents needed on
+  # victim containers — the engine writes the log directly to the host, and
+  # this container picks it up via a bind mount.
+  gloamfire-wazuh-agent:
+    build:
+      context: ./wazuh-agent
+      dockerfile: Dockerfile
+    container_name: gloamfire-wazuh-agent
+    hostname: gloamfire-attack-host
+    volumes:
+      - ./logs/gloamfire-attacks.log:/var/log/gloamfire/attacks.log:ro
+    networks:
+      - wazuh-internal
+    depends_on:
+      - wazuh.manager
+    restart: unless-stopped
+
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: gloamfire-suricata
+    hostname: gloamfire-suricata
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_NICE
+    volumes:
+      - ./logs/suricata:/var/log/suricata
+      - ./logs/suricata-rules:/var/lib/suricata/rules
+      - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml
+      - ./suricata/rules:/etc/suricata/rules
+    # SURICATA_IFACE is written to .env by `gloamfire lab up monitor`
+    command: >
+      -i ${SURICATA_IFACE:-any}
+      --af-packet
+      -v
+    restart: unless-stopped
+
+volumes:
+  wazuh_api_configuration:
+  wazuh_etc:
+  wazuh_queue:
+  wazuh_indexer_data:
+
+networks:
+  wazuh-internal:
+    name: wazuh-internal
+    driver: bridge

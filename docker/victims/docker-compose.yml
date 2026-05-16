@@ -1,0 +1,54 @@
+# Gloamfire Victim Stack
+# Isolated containers that serve as attack simulation targets.
+# Network: gloamfire-attack-net (bridge, no external access by default)
+
+services:
+  ubuntu:
+    build:
+      context: ./ubuntu
+    container_name: gloamfire-ubuntu
+    hostname: gloamfire-ubuntu
+    networks:
+      - gloamfire-attack-net
+    restart: "no"
+    cap_add:
+      - NET_RAW      # allows tcpdump + ping inside container
+    security_opt:
+      - no-new-privileges:false  # some simulations need privilege escalation paths
+    labels:
+      gloamfire.role: victim
+      gloamfire.type: ubuntu
+
+  workstation:
+    build:
+      context: ./workstation
+    container_name: gloamfire-workstation
+    hostname: gloamfire-workstation
+    networks:
+      - gloamfire-attack-net
+    restart: "no"
+    labels:
+      gloamfire.role: victim
+      gloamfire.type: workstation
+
+  vuln-web:
+    build:
+      context: ./vuln-web
+    container_name: gloamfire-vuln-web
+    hostname: gloamfire-vuln-web
+    ports:
+      - "18080:8080"
+    networks:
+      - gloamfire-attack-net
+    restart: "no"
+    labels:
+      gloamfire.role: victim
+      gloamfire.type: vuln-web
+
+networks:
+  gloamfire-attack-net:
+    name: gloamfire-attack-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
