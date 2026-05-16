@@ -72,6 +72,8 @@ def run_scenario(
         False, "--no-validate", help="Skip detection validation"
     ),
     export: Path = typer.Option(None, "--export", "-e", help="Export artefacts to directory"),
+    pcap: bool = typer.Option(False, "--pcap", help="Capture network traffic to a .pcap file"),
+    pcap_out: Path = typer.Option(None, "--pcap-out", help="PCAP output path (default: <scenario>.pcap)"),
 ) -> None:
     """
     Execute a named scenario against victim containers.
@@ -81,9 +83,11 @@ def run_scenario(
         gloamfire simulate run suspicious-curl
         gloamfire simulate run reverse-shell --dry-run
         gloamfire simulate run fake-ransomware --export ./output
+        gloamfire simulate run credential-dump --pcap
     """
     from gloamfire.core.docker_client import DockerClient
     from gloamfire.core.executor import ScenarioExecutor
+    from gloamfire.core.pcap import PcapCapture
     from gloamfire.detections.validator import DetectionValidator
     from gloamfire.telemetry.exporter import ResultExporter
 
@@ -119,6 +123,15 @@ def run_scenario(
             )
         )
 
+    capture: PcapCapture | None = None
+    if pcap and not dry_run:
+        capture = PcapCapture(docker_client)
+        if capture.start():
+            console.print("[dim]  PCAP capture started[/dim]")
+        else:
+            console.print("[yellow]  Warning: could not start PCAP capture[/yellow]")
+            capture = None
+
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -148,6 +161,14 @@ def run_scenario(
             raise typer.Exit(1)
 
         progress.update(task, description="Done")
+
+    if capture:
+        dest = pcap_out or (export / f"{scenario_name}.pcap" if export else Path(f"{scenario_name}.pcap"))
+        if capture.stop(dest):
+            kb = dest.stat().st_size // 1024
+            console.print(f"[green][+][/green] PCAP saved: [bold]{dest}[/bold] ({kb} KB)")
+        else:
+            console.print("[yellow]  Warning: PCAP capture produced no output[/yellow]")
 
     # Summary
     console.print()
@@ -267,10 +288,13 @@ _ALL_SCENARIOS = [
 @app.command(name="all")
 def run_all(
     dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Preview without executing"),
+    pcap: bool = typer.Option(False, "--pcap", help="Capture per-scenario .pcap files"),
+    pcap_dir: Path = typer.Option(Path("."), "--pcap-dir", help="Directory for PCAP files"),
 ) -> None:
     """Run all built-in scenarios in sequence and print a combined summary."""
     from gloamfire.core.docker_client import DockerClient
     from gloamfire.core.executor import ScenarioExecutor
+    from gloamfire.core.pcap import PcapCapture
     from gloamfire.detections.validator import DetectionValidator
 
     try:
@@ -298,6 +322,12 @@ def run_all(
                 border_style="green",
             )
         )
+
+        capture: PcapCapture | None = None
+        if pcap and not dry_run:
+            capture = PcapCapture(docker_client)
+            capture.start()
+
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -315,10 +345,18 @@ def run_all(
                 AttackNotFoundError,
                 ExecutionError,
             ) as exc:
+                if capture:
+                    capture.stop(pcap_dir / f"{name}.pcap")
                 err.print(f"[bold red]Error:[/bold red] {exc}")
                 summary_rows.append((name, "error", "—"))
                 any_fail = True
                 continue
+
+        if capture:
+            dest = pcap_dir / f"{name}.pcap"
+            if capture.stop(dest):
+                kb = dest.stat().st_size // 1024
+                console.print(f"[dim]  PCAP: {dest} ({kb} KB)[/dim]")
 
         console.print(
             f"Completed [bold]{result.scenario}[/bold] in "

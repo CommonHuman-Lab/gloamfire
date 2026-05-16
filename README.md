@@ -96,6 +96,16 @@ gloamfire simulate chain my_chain
 gloamfire simulate chain ./scenarios/chains/my_chain.yaml --export ./output
 ```
 
+### Capture network traffic (PCAP)
+
+```bash
+gloamfire simulate run suspicious-curl --pcap
+gloamfire simulate run credential-dump --pcap --pcap-out ./captures/cred.pcap
+gloamfire simulate all --pcap --pcap-dir ./captures/
+```
+
+Runs `tcpdump` inside the victim container for the duration of the simulation and copies the `.pcap` file to the host. Open the result in Wireshark to inspect the exact packets each attack generates.
+
 ### Export an ATT&CK Navigator heatmap
 
 ```bash
@@ -260,9 +270,6 @@ mypy gloamfire/
 
 ## Roadmap
 
-- [ ] Sigma rule validation backend
-- [ ] Windows AD victim container
-- [ ] PCAP capture from simulations
 - [ ] Web UI for scenario management
 
 ---

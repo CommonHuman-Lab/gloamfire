@@ -45,3 +45,4 @@ output/
 docker/monitor/logs/
 docker/monitor/.env
 docker/monitor/suricata/rules/gloamfire-lab.rules
+*.pcap
