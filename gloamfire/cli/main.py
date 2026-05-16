@@ -30,6 +30,7 @@ err_console = Console(stderr=True)
 
 
 def _register_commands() -> None:
+    from gloamfire.cli.commands.dashboard import app as dashboard_app
     from gloamfire.cli.commands.export import app as export_app
     from gloamfire.cli.commands.labs import app as labs_app
     from gloamfire.cli.commands.list_cmd import app as list_app
@@ -41,6 +42,7 @@ def _register_commands() -> None:
     app.add_typer(list_app, name="list")
     app.add_typer(export_app, name="export")
     app.add_typer(validate_app, name="validate")
+    app.add_typer(dashboard_app, name="dashboard")
 
 
 _register_commands()

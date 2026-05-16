@@ -83,4 +83,52 @@
     <group>gloamfire,privilege_escalation,</group>
   </rule>
 
+  <rule id="100011" level="10">
+    <if_sid>100001</if_sid>
+    <match>recon</match>
+    <description>Gloamfire: Host and network reconnaissance detected (T1082, T1083, T1087, T1016, T1057)</description>
+    <mitre><id>T1082</id><id>T1083</id><id>T1087</id><id>T1016</id><id>T1057</id></mitre>
+    <group>gloamfire,discovery,</group>
+  </rule>
+
+  <rule id="100012" level="12">
+    <if_sid>100001</if_sid>
+    <match>data_collection</match>
+    <description>Gloamfire: Data collection and staging activity detected (T1005, T1074, T1560)</description>
+    <mitre><id>T1005</id><id>T1074</id><id>T1560</id></mitre>
+    <group>gloamfire,collection,</group>
+  </rule>
+
+  <rule id="100013" level="13">
+    <if_sid>100001</if_sid>
+    <match>exfil_http</match>
+    <description>Gloamfire: Data exfiltration over HTTP/DNS detected (T1041, T1048)</description>
+    <mitre><id>T1041</id><id>T1048</id></mitre>
+    <group>gloamfire,exfiltration,</group>
+  </rule>
+
+  <rule id="100014" level="14">
+    <if_sid>100001</if_sid>
+    <match>account_backdoor</match>
+    <description>Gloamfire: Backdoor account creation and manipulation detected (T1136, T1098)</description>
+    <mitre><id>T1136</id><id>T1136.001</id><id>T1098</id></mitre>
+    <group>gloamfire,persistence,account_creation,</group>
+  </rule>
+
+  <rule id="100015" level="12">
+    <if_sid>100001</if_sid>
+    <match>defense_evasion</match>
+    <description>Gloamfire: Defense evasion — history clear, masquerading, permissions modification (T1070.003, T1036, T1222)</description>
+    <mitre><id>T1070.003</id><id>T1036</id><id>T1222</id><id>T1562.001</id></mitre>
+    <group>gloamfire,defense_evasion,</group>
+  </rule>
+
+  <rule id="100016" level="13">
+    <if_sid>100001</if_sid>
+    <match>lateral_move</match>
+    <description>Gloamfire: Lateral movement detected — SSH probe and tool transfer to pivot host (T1021.004, T1570)</description>
+    <mitre><id>T1021</id><id>T1021.004</id><id>T1570</id></mitre>
+    <group>gloamfire,lateral_movement,</group>
+  </rule>
+
 </group>

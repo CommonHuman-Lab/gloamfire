@@ -73,7 +73,9 @@ def run_scenario(
     ),
     export: Path = typer.Option(None, "--export", "-e", help="Export artefacts to directory"),
     pcap: bool = typer.Option(False, "--pcap", help="Capture network traffic to a .pcap file"),
-    pcap_out: Path = typer.Option(None, "--pcap-out", help="PCAP output path (default: <scenario>.pcap)"),
+    pcap_out: Path = typer.Option(
+        None, "--pcap-out", help="PCAP output path (default: <scenario>.pcap)"
+    ),
 ) -> None:
     """
     Execute a named scenario against victim containers.
@@ -163,7 +165,8 @@ def run_scenario(
         progress.update(task, description="Done")
 
     if capture:
-        dest = pcap_out or (export / f"{scenario_name}.pcap" if export else Path(f"{scenario_name}.pcap"))
+        default_pcap = export / f"{scenario_name}.pcap" if export else Path(f"{scenario_name}.pcap")
+        dest = pcap_out or default_pcap
         if capture.stop(dest):
             kb = dest.stat().st_size // 1024
             console.print(f"[green][+][/green] PCAP saved: [bold]{dest}[/bold] ({kb} KB)")
@@ -272,6 +275,54 @@ def _sim_privilege_escalation(
     _invoke_run("privilege_escalation", dry_run)
 
 
+@app.command(name="recon")
+def _sim_recon(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n"),
+) -> None:
+    """Shorthand: simulate recon scenario."""
+    _invoke_run("recon", dry_run)
+
+
+@app.command(name="data-collection")
+def _sim_data_collection(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n"),
+) -> None:
+    """Shorthand: simulate data-collection scenario."""
+    _invoke_run("data_collection", dry_run)
+
+
+@app.command(name="exfil-http")
+def _sim_exfil_http(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n"),
+) -> None:
+    """Shorthand: simulate exfil-http scenario."""
+    _invoke_run("exfil_http", dry_run)
+
+
+@app.command(name="account-backdoor")
+def _sim_account_backdoor(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n"),
+) -> None:
+    """Shorthand: simulate account-backdoor scenario."""
+    _invoke_run("account_backdoor", dry_run)
+
+
+@app.command(name="defense-evasion")
+def _sim_defense_evasion(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n"),
+) -> None:
+    """Shorthand: simulate defense-evasion scenario."""
+    _invoke_run("defense_evasion", dry_run)
+
+
+@app.command(name="lateral-move")
+def _sim_lateral_move(
+    dry_run: bool = typer.Option(False, "--dry-run", "-n"),
+) -> None:
+    """Shorthand: simulate lateral-move scenario."""
+    _invoke_run("lateral_move", dry_run)
+
+
 _ALL_SCENARIOS = [
     "suspicious_curl",
     "reverse_shell",
@@ -282,6 +333,12 @@ _ALL_SCENARIOS = [
     "credential_dump",
     "log_tampering",
     "privilege_escalation",
+    "recon",
+    "data_collection",
+    "exfil_http",
+    "account_backdoor",
+    "defense_evasion",
+    "lateral_move",
 ]
 
 
@@ -426,7 +483,7 @@ def run_chain(
         raise typer.Exit(1)
 
     try:
-        chain_obj = Chain.model_validate(yaml.safe_load(chain_path.read_text()))
+        chain_obj = Chain.model_validate(yaml.safe_load(chain_path.read_text(encoding="utf-8")))
     except (ValidationError, Exception) as exc:
         err.print(f"[bold red]Invalid chain file:[/bold red] {exc}")
         raise typer.Exit(1)

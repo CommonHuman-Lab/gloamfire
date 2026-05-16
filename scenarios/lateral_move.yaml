@@ -1,0 +1,45 @@
+name: lateral_move
+description: >
+  Safe two-phase lateral movement simulation across the gloamfire-attack-net bridge.
+  Phase 1 (ubuntu): nmap port scan, SSH probe to workstation, netcat tool transfer.
+  Phase 2 (workstation): post-pivot foothold simulation with discovery commands.
+  All traffic stays within the isolated Docker bridge network.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - lateral-movement
+  - ssh
+  - pivot
+
+mitre:
+  - T1021
+  - T1021.004
+  - T1570
+
+steps:
+  - id: probe_from_ubuntu
+    attack: lateral_move_probe
+    target: gloamfire-ubuntu
+
+  - id: pivot_to_workstation
+    attack: lateral_move_pivot
+    target: gloamfire-workstation
+
+expect:
+  - source: suricata
+    description: "Suricata detects SSH probe to port 22 (T1021.004)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100016"
+    description: "Wazuh detects lateral movement activity"
+    required: true
+
+cleanup:
+  - id: cleanup_ubuntu
+    attack: lateral_move_cleanup
+    target: gloamfire-ubuntu
+
+  - id: cleanup_workstation
+    attack: lateral_move_cleanup
+    target: gloamfire-workstation

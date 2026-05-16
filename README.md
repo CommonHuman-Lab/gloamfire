@@ -135,8 +135,13 @@ gloamfire down
 | `credential_dump` | **Critical** | T1003, T1552.001 | /etc/shadow access + exfil DNS beacon |
 | `log_tampering` | **Critical** | T1070, T1070.002 | Log clear DNS beacon + C2 HTTP |
 | `privilege_escalation` | **Critical** | T1548, T1548.001 | SUID enum + privesc DNS beacon |
+| `recon` | High | T1082, T1083, T1087, T1016, T1057, T1069, T1049 | Recon DNS beacon after host/network discovery |
+| `data_collection` | High | T1005, T1074, T1560, T1560.001 | Collection DNS beacon after file staging + tar |
+| `exfil_http` | High | T1041, T1048, T1048.003 | HTTP POST + DNS exfil to non-routable C2 |
+| `account_backdoor` | High | T1136, T1136.001, T1098 | Backdoor account DNS beacon + fake sudoers |
+| `defense_evasion` | High | T1070.003, T1036, T1036.005, T1222, T1562.001 | History clear + masquerade binary + chmod |
 
-All nine pass both **Wazuh** (custom rules 100002–100010, levels 10–15) and **Suricata** (ET Open + custom rules 9000001–9000022) out of the box.
+All 14 scenarios pass both **Wazuh** (custom rules 100002–100015, levels 10–15) and **Suricata** (ET Open + custom rules 9000001–9000028) out of the box.
 
 ---
 
@@ -268,9 +273,28 @@ mypy gloamfire/
 
 ---
 
-## Roadmap
+### Web Dashboard
 
-- [ ] Web UI for scenario management
+```bash
+gloamfire dashboard
+```
+
+Opens a browser to `http://127.0.0.1:7100` with a live dashboard. Three pages:
+
+- **Dashboard** — lab health, container status, MITRE technique coverage, recent events
+- **Scenarios** — browse all scenarios with severity badges and one-click simulation (streams SSE output live)
+- **Results** — full telemetry event log
+
+Use `--port` to change the default port, `--no-open` to skip auto-launching the browser.
+
+To develop the UI locally:
+
+```bash
+cd ui
+npm install
+npm run dev       # dev server at :5173, proxies /api to :7100
+npm run build     # outputs to gloamfire/api/static/ (served by FastAPI)
+```
 
 ---
 

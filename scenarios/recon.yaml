@@ -1,0 +1,39 @@
+name: recon
+description: >
+  Safe simulation of adversary host reconnaissance.
+  Runs standard discovery commands: uname, find, /etc/passwd, ip addr, ps aux,
+  /etc/group, ss. All output written to /tmp. Nothing leaves the container.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - discovery
+  - recon
+
+mitre:
+  - T1082
+  - T1083
+  - T1087
+  - T1016
+  - T1057
+  - T1069
+  - T1049
+
+steps:
+  - id: host_recon
+    attack: recon
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects recon DNS beacon (T1082/T1083)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100011"
+    description: "Wazuh detects recon/discovery activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: recon_cleanup
+    target: gloamfire-ubuntu

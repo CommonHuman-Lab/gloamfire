@@ -46,3 +46,9 @@ def load_builtin_attacks() -> None:
     import gloamfire.attacks.credential_dump  # noqa: F401
     import gloamfire.attacks.log_tampering  # noqa: F401
     import gloamfire.attacks.privilege_escalation  # noqa: F401
+    import gloamfire.attacks.recon  # noqa: F401
+    import gloamfire.attacks.data_collection  # noqa: F401
+    import gloamfire.attacks.exfil_http  # noqa: F401
+    import gloamfire.attacks.account_backdoor  # noqa: F401
+    import gloamfire.attacks.defense_evasion  # noqa: F401
+    import gloamfire.attacks.lateral_move  # noqa: F401

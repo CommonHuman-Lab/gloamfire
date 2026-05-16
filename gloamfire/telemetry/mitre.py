@@ -29,6 +29,46 @@ _TECHNIQUE_DB: dict[str, dict[str, str]] = {
     "T1070.002": {"name": "Clear Linux or Mac System Logs", "tactic": "Defense Evasion"},
     "T1548": {"name": "Abuse Elevation Control Mechanism", "tactic": "Privilege Escalation"},
     "T1548.001": {"name": "Setuid and Setgid", "tactic": "Privilege Escalation"},
+    # Discovery (TA0007)
+    "T1082": {"name": "System Information Discovery", "tactic": "Discovery"},
+    "T1083": {"name": "File and Directory Discovery", "tactic": "Discovery"},
+    "T1087": {"name": "Account Discovery", "tactic": "Discovery"},
+    "T1087.001": {"name": "Account Discovery: Local Account", "tactic": "Discovery"},
+    "T1016": {"name": "System Network Configuration Discovery", "tactic": "Discovery"},
+    "T1057": {"name": "Process Discovery", "tactic": "Discovery"},
+    "T1069": {"name": "Permission Groups Discovery", "tactic": "Discovery"},
+    "T1049": {"name": "System Network Connections Discovery", "tactic": "Discovery"},
+    # Collection (TA0009)
+    "T1005": {"name": "Data from Local System", "tactic": "Collection"},
+    "T1074": {"name": "Data Staged", "tactic": "Collection"},
+    "T1074.001": {"name": "Data Staged: Local Data Staging", "tactic": "Collection"},
+    "T1560": {"name": "Archive Collected Data", "tactic": "Collection"},
+    "T1560.001": {"name": "Archive via Utility", "tactic": "Collection"},
+    # Exfiltration (TA0010)
+    "T1041": {"name": "Exfiltration Over C2 Channel", "tactic": "Exfiltration"},
+    "T1048": {"name": "Exfiltration Over Alternative Protocol", "tactic": "Exfiltration"},
+    "T1048.003": {
+        "name": "Exfiltration Over Unencrypted Non-C2 Protocol",
+        "tactic": "Exfiltration",
+    },
+    # Persistence (TA0003) additions
+    "T1136": {"name": "Create Account", "tactic": "Persistence"},
+    "T1136.001": {"name": "Create Account: Local Account", "tactic": "Persistence"},
+    "T1098": {"name": "Account Manipulation", "tactic": "Persistence"},
+    # Defense Evasion (TA0005) additions
+    "T1036": {"name": "Masquerading", "tactic": "Defense Evasion"},
+    "T1036.005": {
+        "name": "Masquerading: Match Legitimate Name or Location",
+        "tactic": "Defense Evasion",
+    },
+    "T1070.003": {"name": "Indicator Removal: Clear Command History", "tactic": "Defense Evasion"},
+    "T1222": {"name": "File and Directory Permissions Modification", "tactic": "Defense Evasion"},
+    "T1562": {"name": "Impair Defenses", "tactic": "Defense Evasion"},
+    "T1562.001": {"name": "Impair Defenses: Disable or Modify Tools", "tactic": "Defense Evasion"},
+    # Lateral Movement (TA0008)
+    "T1021": {"name": "Remote Services", "tactic": "Lateral Movement"},
+    "T1021.004": {"name": "Remote Services: SSH", "tactic": "Lateral Movement"},
+    "T1570": {"name": "Lateral Tool Transfer", "tactic": "Lateral Movement"},
 }
 
 

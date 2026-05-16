@@ -1,0 +1,36 @@
+name: exfil_http
+description: >
+  Safe simulation of HTTP-based data exfiltration.
+  POSTs a clearly-labelled fake payload to a non-routable C2 address (192.0.2.1)
+  and queries a DNS TXT record to simulate alternative-protocol exfiltration.
+  No real data is transmitted to any external service.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - exfiltration
+  - c2
+
+mitre:
+  - T1041
+  - T1048
+  - T1048.003
+
+steps:
+  - id: http_exfil
+    attack: exfil_http
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects exfil C2 beacon (T1041)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100013"
+    description: "Wazuh detects exfiltration activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: exfil_http_cleanup
+    target: gloamfire-ubuntu

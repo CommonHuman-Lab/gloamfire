@@ -47,3 +47,7 @@ docker/monitor/.env
 docker/monitor/suricata/rules/gloamfire-lab.rules
 *.pcap
 navigator_layer.json
+
+# Web UI build output
+ui/node_modules/
+ui/package-lock.json

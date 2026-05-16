@@ -1,0 +1,36 @@
+name: account_backdoor
+description: >
+  Safe simulation of backdoor account creation and sudoers manipulation.
+  Creates a clearly-labelled throwaway account inside the isolated victim
+  container and writes a simulated sudoers entry to /tmp (not to real sudoers.d).
+  The cleanup step removes the account and all artefacts immediately.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - persistence
+  - privilege-escalation
+
+mitre:
+  - T1136
+  - T1136.001
+  - T1098
+
+steps:
+  - id: create_backdoor_account
+    attack: account_backdoor
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects backdoor account DNS beacon (T1136)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100014"
+    description: "Wazuh detects backdoor account creation (T1136)"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: account_backdoor_cleanup
+    target: gloamfire-ubuntu

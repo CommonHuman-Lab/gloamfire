@@ -1,0 +1,37 @@
+name: data_collection
+description: >
+  Safe simulation of adversary data collection.
+  Searches for local config files, stages them in /tmp, and archives
+  them with tar. Creates a fake credentials file labelled SIMULATION_ONLY.
+  No real data leaves the container.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - collection
+  - staging
+
+mitre:
+  - T1005
+  - T1074
+  - T1560
+  - T1560.001
+
+steps:
+  - id: collect_and_stage
+    attack: data_collection
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects collection DNS beacon (T1074)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100012"
+    description: "Wazuh detects data collection and staging activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: data_collection_cleanup
+    target: gloamfire-ubuntu

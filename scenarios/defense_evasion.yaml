@@ -1,0 +1,38 @@
+name: defense_evasion
+description: >
+  Safe simulation of defense evasion techniques.
+  Clears a fake bash history in /tmp, copies /bin/sh to a masqueraded binary
+  name in /tmp, modifies its permissions to 777, and logs simulated
+  iptables/auditd disable commands without executing them.
+author: Gloamfire Team
+version: "1.0"
+tags:
+  - defense-evasion
+  - masquerading
+
+mitre:
+  - T1070.003
+  - T1036
+  - T1036.005
+  - T1222
+  - T1562.001
+
+steps:
+  - id: evade_defenses
+    attack: defense_evasion
+    target: gloamfire-ubuntu
+
+expect:
+  - source: suricata
+    description: "Suricata detects defense evasion DNS beacon (T1070.003)"
+    required: true
+
+  - source: wazuh
+    rule_id: "100015"
+    description: "Wazuh detects defense evasion activity"
+    required: true
+
+cleanup:
+  - id: cleanup
+    attack: defense_evasion_cleanup
+    target: gloamfire-ubuntu
