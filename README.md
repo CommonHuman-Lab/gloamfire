@@ -62,45 +62,9 @@ gloamfire down
 gloamfire dashboard
 ```
 
-Opens a browser to `http://127.0.0.1:7100` with a live dashboard
+Opens a browser to `http://127.0.0.1:7100` with a live dashboard.
 
-Use `--port` to change the default port, `--no-open` to skip auto-launching the browser.
-
-### Run all simulations
-
-```bash
-gloamfire simulate all
-```
-
-[All available scenarios](https://github.com/CommonHuman-Lab/gloamfire/wiki/Available_Scenarios)
-
-### Run a scenario chain
-
-```bash
-gloamfire simulate chain kill-chain
-```
-
-Runs an ordered sequence of scenarios defined in a YAML file. The built-in `kill_chain` covers all simulations in a realistic attack sequence. 
-
-[Custom Chain](https://github.com/CommonHuman-Lab/gloamfire/wiki/Custom_Chain)
-
-### Capture network traffic (PCAP)
-
-```bash
-gloamfire simulate run suspicious-curl --pcap
-gloamfire simulate run credential-dump --pcap --pcap-out ./captures/cred.pcap
-gloamfire simulate all --pcap --pcap-dir ./captures/
-```
-
-Runs `tcpdump` inside the victim container for the duration of the simulation and copies the `.pcap` file to the host. Open the result in Wireshark to inspect the exact packets each attack generates.
-
-### Export an ATT&CK Navigator heatmap
-
-```bash
-gloamfire export navigator
-```
-
-Reads accumulated telemetry and writes `navigator_layer.json`. Upload it at [https://mitre-attack.github.io/attack-navigator/](https://mitre-attack.github.io/attack-navigator/) → Open Existing Layer → Upload from local.
+See [docs/cli-commands.md](docs/cli-commands.md) for the full command reference — simulations, PCAP capture, ATT&CK Navigator export, and independent stack management.
 
 ---
 
@@ -109,7 +73,6 @@ Reads accumulated telemetry and writes `navigator_layer.json`. Upload it at [htt
 20 scenarios covering **~55 MITRE ATT&CK techniques across 11 of 14 tactics**.
 
 [All available scenarios](https://github.com/CommonHuman-Lab/gloamfire/wiki/Available_Scenarios)
-[Custom Scenario](https://github.com/CommonHuman-Lab/gloamfire/wiki/Custom_Scenario)
 
 ---
 
@@ -119,20 +82,6 @@ Reads accumulated telemetry and writes `navigator_layer.json`. Upload it at [htt
 - **YAML-driven scenarios** — Scenarios are data, not code.
 - **File-based collection** — No API or OpenSearch connection needed; collectors read bind-mounted log files directly.
 - **Isolated network** — Victim containers run on `gloamfire-attack-net` (172.30.0.0/24).
-
----
-
-## Monitor Stack
-
-The monitor stack (Wazuh + Suricata) is included in `gloamfire up`. You can also manage stacks independently:
-
-```bash
-gloamfire lab up victims
-gloamfire lab up monitor
-gloamfire lab status
-```
-
-**Wazuh dashboard** — `https://localhost:5601` (admin / admin)
 
 ---
 
