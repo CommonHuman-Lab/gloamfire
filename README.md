@@ -51,7 +51,17 @@ This single command:
 - Downloads 50,000+ Emerging Threats rules into Suricata
 - Waits for the Wazuh agent to enrol — then you're ready
 
-### Run all 20 simulations
+### Web Dashboard
+
+```bash
+gloamfire dashboard
+```
+
+Opens a browser to `http://127.0.0.1:7100` with a live dashboard
+
+Use `--port` to change the default port, `--no-open` to skip auto-launching the browser.
+
+### Run all simulations
 
 ```bash
 gloamfire simulate all
@@ -316,36 +326,8 @@ pytest                                 # full suite (requires Docker)
 ruff check gloamfire/ tests/
 ruff format gloamfire/ tests/
 mypy gloamfire/
-```
 
----
-
-## Requirements
-
-- Python 3.12+
-- Docker Engine with Compose plugin (daemon running)
-- 2 GB RAM for the victim stack only
-- 4 GB RAM for the full lab (victims + monitor)
-
----
-
-### Web Dashboard
-
-```bash
-gloamfire dashboard
-```
-
-Opens a browser to `http://127.0.0.1:7100` with a live dashboard. Three pages:
-
-- **Dashboard** — lab health, container status, MITRE technique coverage, recent events
-- **Scenarios** — browse all scenarios with severity badges and one-click simulation (streams SSE output live)
-- **Results** — full telemetry event log
-
-Use `--port` to change the default port, `--no-open` to skip auto-launching the browser.
-
-To develop the UI locally:
-
-```bash
+#UI
 cd ui
 npm install
 npm run dev       # dev server at :5173, proxies /api to :7100
