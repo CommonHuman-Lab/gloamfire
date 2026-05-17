@@ -1,10 +1,51 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Activity, Server, Shield, Zap, Play, Square, ExternalLink, X } from 'lucide-react'
+import { Activity, Server, Shield, Zap, Play, Square, ExternalLink, X, RotateCcw, AlertTriangle } from 'lucide-react'
 import { api, type LabStatus, type ResultsResponse, type Container, type MitreTechnique } from '../../api/client'
 import { StatCard } from '../../components/StatCard'
 import { EventModal } from '../../components/EventModal'
 import { TechniqueModal } from '../../components/TechniqueModal'
 import type { ResultEvent } from '../../api/client'
+
+function ResetConfirmModal({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
+  const onKey = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose()
+  }, [onClose])
+
+  useEffect(() => {
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onKey])
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 420 }}>
+        <div className="modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <AlertTriangle size={18} style={{ color: 'var(--red)' }} />
+            <span className="modal-title">Reset Lab Data</span>
+          </div>
+          <button className="modal-close" onClick={onClose}><X size={16} /></button>
+        </div>
+        <div className="modal-body">
+          <p style={{ color: 'var(--text-dim)', fontSize: 13, margin: '0 0 20px' }}>
+            This will permanently delete <strong style={{ color: 'var(--text-h)' }}>gloamfire_telemetry.jsonl</strong> and
+            clear all events, results, and MITRE technique coverage from the dashboard.
+            The lab containers are not affected.
+          </p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+            <button className="ctrl-btn" onClick={onClose}>Cancel</button>
+            <button
+              className="ctrl-btn down-btn"
+              onClick={() => { onConfirm(); onClose() }}
+            >
+              <RotateCcw size={13} /> Yes, reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function ContainerModal({ container, onClose }: { container: Container; onClose: () => void }) {
   const onKey = useCallback((e: KeyboardEvent) => {
@@ -62,6 +103,7 @@ export function DashboardPage() {
   const [results, setResults] = useState<ResultsResponse | null>(null)
   const [mitreDb, setMitreDb] = useState<Map<string, MitreTechnique>>(new Map())
   const [labBusy, setLabBusy] = useState(false)
+  const [showReset, setShowReset] = useState(false)
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null)
   const [selectedEvent, setSelectedEvent] = useState<ResultEvent | null>(null)
   const [selectedTechnique, setSelectedTechnique] = useState<MitreTechnique | null>(null)
@@ -87,6 +129,11 @@ export function DashboardPage() {
   async function labDown() {
     setLabBusy(true)
     try { await api.labDown(); await refresh() } finally { setLabBusy(false) }
+  }
+
+  async function labReset() {
+    await api.labReset()
+    await refresh()
   }
 
   function openTechnique(id: string) {
@@ -147,6 +194,9 @@ export function DashboardPage() {
             <Square size={13} /> Stop Lab
           </button>
         )}
+        <button className="ctrl-btn" onClick={() => setShowReset(true)} disabled={labBusy}>
+          <RotateCcw size={13} /> Reset Lab
+        </button>
         <a
           className="ctrl-btn"
           href="https://localhost:5601"
@@ -244,6 +294,9 @@ export function DashboardPage() {
         )}
       </div>
 
+      {showReset && (
+        <ResetConfirmModal onConfirm={() => void labReset()} onClose={() => setShowReset(false)} />
+      )}
       {selectedContainer && (
         <ContainerModal container={selectedContainer} onClose={() => setSelectedContainer(null)} />
       )}

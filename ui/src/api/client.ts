@@ -77,6 +77,7 @@ export const api = {
   getMitre: () => get<MitreTechnique[]>('/api/mitre'),
   labUp: () => post<{ status: string }>('/api/lab/up'),
   labDown: () => post<{ status: string }>('/api/lab/down'),
+  labReset: () => post<{ status: string; wiped: string[] }>('/api/lab/reset'),
 
   simulateStream(name: string, onEvent: (data: unknown) => void): () => void {
     const ctrl = new AbortController()

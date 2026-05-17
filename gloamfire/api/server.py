@@ -242,6 +242,15 @@ async def lab_down(stack: str = "all") -> dict[str, str]:
     return {"status": "stopped", "stack": stack}
 
 
+@app.post("/api/lab/reset")
+async def lab_reset() -> dict[str, Any]:
+    wiped: list[str] = []
+    if _TELEMETRY.exists():
+        _TELEMETRY.unlink()
+        wiped.append(_TELEMETRY.name)
+    return {"status": "reset", "wiped": wiped}
+
+
 @app.get("/api/mitre")
 async def get_mitre() -> list[dict[str, str]]:
     from gloamfire.telemetry.mitre import _TECHNIQUE_DB
