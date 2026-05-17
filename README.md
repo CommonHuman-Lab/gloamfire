@@ -50,6 +50,12 @@ This single command:
 - Builds and starts the Wazuh manager, indexer, and dashboard
 - Downloads 50,000+ Emerging Threats rules into Suricata
 
+### Tear down
+
+```bash
+gloamfire down
+```
+
 ### Web Dashboard
 
 ```bash
@@ -94,13 +100,7 @@ Runs `tcpdump` inside the victim container for the duration of the simulation an
 gloamfire export navigator
 ```
 
-Reads accumulated telemetry from `gloamfire_telemetry.jsonl` and writes `navigator_layer.json`. Upload it at [https://mitre-attack.github.io/attack-navigator/](https://mitre-attack.github.io/attack-navigator/) → Open Existing Layer → Upload from local.
-
-### Tear down
-
-```bash
-gloamfire down
-```
+Reads accumulated telemetry and writes `navigator_layer.json`. Upload it at [https://mitre-attack.github.io/attack-navigator/](https://mitre-attack.github.io/attack-navigator/) → Open Existing Layer → Upload from local.
 
 ---
 
