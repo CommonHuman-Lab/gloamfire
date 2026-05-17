@@ -1,15 +1,27 @@
 name: kill_chain
 description: >
-  Full adversary kill chain — initial access, C2, persistence, and impact.
-  Runs all six built-in scenarios in a realistic attack sequence.
+  Full adversary kill chain across all 20 scenarios in a realistic attack sequence:
+  recon → initial access → C2 → privilege escalation → lateral movement →
+  collection → exfiltration → persistence → defense evasion → impact.
 on_fail: continue
 scenarios:
+  - recon
+  - network_scan
   - suspicious_curl
-  - reverse_shell
-  - encoded_command
-  - persistence
   - suspicious_dns
+  - reverse_shell
+  - python_exec
+  - encoded_command
+  - c2_icmp
   - credential_dump
-  - log_tampering
   - privilege_escalation
+  - env_hijack
+  - lateral_move
+  - data_collection
+  - exfil_http
+  - persistence
+  - account_backdoor
+  - service_persistence
+  - defense_evasion
+  - log_tampering
   - fake_ransomware
