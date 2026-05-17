@@ -20,6 +20,9 @@ export interface Container {
   name: string
   status: string
   running: boolean
+  image: string
+  ports: string
+  id: string
 }
 
 export interface LabStatus {
@@ -59,11 +62,19 @@ export interface Chain {
   scenarios: string[]
 }
 
+export interface MitreTechnique {
+  id: string
+  name: string
+  tactic: string
+  url: string
+}
+
 export const api = {
   getStatus: () => get<LabStatus>('/api/status'),
   getScenarios: () => get<Scenario[]>('/api/scenarios'),
   getResults: () => get<ResultsResponse>('/api/results'),
   getChains: () => get<Chain[]>('/api/chains'),
+  getMitre: () => get<MitreTechnique[]>('/api/mitre'),
   labUp: () => post<{ status: string }>('/api/lab/up'),
   labDown: () => post<{ status: string }>('/api/lab/down'),
 

@@ -44,17 +44,27 @@ def _docker_ps() -> list[dict[str, Any]]:
         ["docker", "ps", "-a",
          "--filter", "name=gloamfire-",
          "--filter", "name=wazuh",
-         "--format", "{{.Names}}\t{{.Status}}"],
+         "--format", "{{.Names}}\t{{.Status}}\t{{.Image}}\t{{.Ports}}\t{{.ID}}"],
         capture_output=True, text=True, check=False,
     )
     containers = []
     for line in r.stdout.strip().splitlines():
         if not line.strip():
             continue
-        parts = line.split("\t", 1)
-        name = parts[0]
+        parts = line.split("\t")
+        name   = parts[0] if len(parts) > 0 else ""
         status = parts[1] if len(parts) > 1 else ""
-        containers.append({"name": name, "status": status, "running": status.startswith("Up")})
+        image  = parts[2] if len(parts) > 2 else ""
+        ports  = parts[3] if len(parts) > 3 else ""
+        cid    = parts[4] if len(parts) > 4 else ""
+        containers.append({
+            "name": name,
+            "status": status,
+            "running": status.startswith("Up"),
+            "image": image,
+            "ports": ports,
+            "id": cid,
+        })
     return containers
 
 
@@ -76,13 +86,13 @@ def _load_scenarios() -> list[dict[str, Any]]:
     return scenarios
 
 
-def _load_results(limit: int = 50) -> list[dict[str, Any]]:
+def _load_results(limit: int = 200) -> list[dict[str, Any]]:
     if not _TELEMETRY.exists():
         return []
     results = []
     try:
         lines = _TELEMETRY.read_text().strip().splitlines()
-        for line in reversed(lines[-limit * 10:]):
+        for line in reversed(lines[-limit * 4:]):
             if not line.strip():
                 continue
             try:
@@ -159,12 +169,24 @@ async def get_scenarios() -> list[dict[str, Any]]:
 
 @app.get("/api/results")
 async def get_results() -> dict[str, Any]:
-    raw = await asyncio.to_thread(_load_results, 20)
+    raw = await asyncio.to_thread(_load_results, 200)
+    expanded: list[dict[str, Any]] = []
+    for record in raw:
+        if isinstance(record.get("events"), list):
+            expanded.extend(record["events"])
+        else:
+            expanded.append(record)
 
     results: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
-    for event in raw:
-        sid = f"{event.get('scenario')}_{event.get('timestamp', '')[:19]}"
+    for event in expanded:
+        if not event.get("mitre"):
+            continue
+        sid = (
+            f"{event.get('scenario')}"
+            f"_{event.get('step_id', '')}"
+            f"_{event.get('timestamp', '')[:19]}"
+        )
         if sid in seen_ids:
             continue
         seen_ids.add(sid)
@@ -182,7 +204,7 @@ async def get_results() -> dict[str, Any]:
         techniques.update(r.get("mitre", []))
 
     return {
-        "events": results,
+        "events": results[:50],
         "total_events": len(results),
         "techniques_covered": sorted(techniques),
     }
@@ -218,6 +240,20 @@ async def lab_down(stack: str = "all") -> dict[str, str]:
     from gloamfire.cli.commands.labs import stop_stack
     await asyncio.to_thread(stop_stack, stack)
     return {"status": "stopped", "stack": stack}
+
+
+@app.get("/api/mitre")
+async def get_mitre() -> list[dict[str, str]]:
+    from gloamfire.telemetry.mitre import _TECHNIQUE_DB
+    return [
+        {
+            "id": tid,
+            "name": info["name"],
+            "tactic": info["tactic"],
+            "url": f"https://attack.mitre.org/techniques/{tid.split('.')[0]}/",
+        }
+        for tid, info in _TECHNIQUE_DB.items()
+    ]
 
 
 @app.get("/api/chains")
