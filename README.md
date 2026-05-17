@@ -64,7 +64,7 @@ gloamfire dashboard
 
 Opens a browser to `http://127.0.0.1:7100` with a live dashboard.
 
-See [docs/cli-commands.md](docs/cli-commands.md) for the full command reference — simulations, PCAP capture, ATT&CK Navigator export, and independent stack management.
+See [CLI commands](https://github.com/CommonHuman-Lab/gloamfire/wiki/CLI-Commands) for the full command reference — simulations, PCAP capture, ATT&CK Navigator export, and independent stack management.
 
 ---
 
@@ -72,7 +72,7 @@ See [docs/cli-commands.md](docs/cli-commands.md) for the full command reference 
 
 20 scenarios covering **~55 MITRE ATT&CK techniques across 11 of 14 tactics**.
 
-[All available scenarios](https://github.com/CommonHuman-Lab/gloamfire/wiki/Available_Scenarios)
+[All available scenarios](https://github.com/CommonHuman-Lab/gloamfire/wiki/Available-Scenarios)
 
 ---
 
